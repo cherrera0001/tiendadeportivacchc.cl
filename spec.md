@@ -1,10 +1,10 @@
 # Spec — Tienda deportiva CCHC
 
-Versión: 1.1  
+Versión: 1.2  
 Repo: `F:\CCHC\tienda-deportiva`  
 Remoto: `https://github.com/cherrera0001/tiendadeportivacchc.cl.git`  
 Producto: Cámara / tiendadeportivacchc.cl  
-Documentos hermanos: `CLAUDE.md` (cómo construir), `data.md` (qué datos existen y cómo se miden)
+Documentos hermanos: `CLAUDE.md` (cómo construir), `data.md` (qué datos existen y cómo se miden), `docs/arquitectura-datos.md` (núcleo PostgreSQL, archivos, inventario, hoja de ruta v3)
 
 Este archivo es la fuente de verdad de **qué** se construye, **en qué orden** y **cuándo un módulo está terminado**. No se implementa nada que no esté aquí o en `data.md`.
 
@@ -29,14 +29,17 @@ La v2 mejora la **arquitectura** sin tirar el front: el HTML/CSS/JS se conservan
 4. Cobrar con Mercado Pago y descontar stock solo con pago confirmado.
 5. Dejar el sistema **data-driven**: eventos y KPIs definidos en `data.md`, no cifras ficticias en el hero.
 
-### No objetivos (v2)
+### No objetivos (v2 — ya entregada)
 
 - App móvil nativa.
-- Cuentas de usuario / login de compradores.
 - Marketplace multi-vendedor.
-- Variantes por talla/color (un producto = un stock).
-- Reescritura a React/Next.js (M7 / v3).
+- Reescritura a React/Next.js de la tienda pública.
 - Publicar el mismo sitio en Vercel y Cloudflare Pages a la vez.
+- NoSQL, base vectorial o blobs de fotos dentro de Postgres como núcleo.
+
+### Alcance v3 (no implementar hasta cerrar preguntas en `docs/arquitectura-datos.md` §9)
+
+Variantes talla/color, reserva de stock, R2, usuarios/roles admin, promociones, despachos, devoluciones, panel. Orden: M7–M12 en la sección 8.
 
 ---
 
@@ -45,8 +48,8 @@ La v2 mejora la **arquitectura** sin tirar el front: el HTML/CSS/JS se conservan
 | Actor | Necesidad |
 |---|---|
 | Visitante | Ver catálogo, filtrar, armar carrito, pagar, suscribirse |
-| Operador CCHC | Ver métricas (`/metricas.html`) y datos en Postgres |
-| Agente (Cursor/Claude) | Construir módulo a módulo según este spec |
+| Operador CCHC | Ver métricas, y en v3 administrar catálogo/pedidos con rol |
+| Agente (Cursor/Claude) | Construir según spec + `docs/arquitectura-datos.md` |
 | Sistemas | Mercado Pago, Vercel, Cloudflare, GitHub |
 
 ---
@@ -108,7 +111,7 @@ Visitante → Express local (:3000)  o  Cloudflare → Vercel
 | GitHub | Repo, PRs | Hosting de la tienda |
 | Vercel | HTML/JS + funciones `/api` | DNS ni almacén de fotos |
 | Cloudflare | DNS, CDN, R2, WAF | Checkout ni webhook MP |
-| Postgres/PGlite | Productos, stock, pedidos, suscriptores, eventos | Archivos binarios |
+| Postgres/PGlite | Productos, stock, pedidos, suscriptores, eventos | Bytes de fotos/PDF (van a R2) |
 | MCP | Deploys, logs, DNS, PRs | Persistir pedidos |
 
 ---
@@ -119,10 +122,10 @@ Visitante → Express local (:3000)  o  Cloudflare → Vercel
 - API local: Express en `server/index.js`
 - API prod: mismos handlers en `api/` (Vercel)
 - BD local: PGlite (`data/pglite`)
-- BD prod: PostgreSQL (`DATABASE_URL`)
+- BD prod: **PostgreSQL** (`DATABASE_URL`) — único OLTP; ver `docs/arquitectura-datos.md`
 - Pagos: Mercado Pago Checkout Pro, `CLP`
-- Fotos local: SVG generados `/media/:id.svg`
-- Fotos prod (siguiente corte): Cloudflare R2
+- Fotos local: SVG `/media/:id.svg`
+- Fotos prod (v3 M8): Cloudflare R2; metadatos en Postgres, no BYTEA
 
 ---
 
@@ -158,8 +161,31 @@ Tablas `categorias`, `productos`, `producto_imagenes`; seed 5 categorías + 20 p
 `POST /api/eventos`; `GET /api/metricas`; `/metricas.html`; hero sin cifras inventadas.  
 **DoD:** SQL/API del embudo: visitas, add_to_cart, begin_checkout, purchase.
 
-### M7 — Fuera de v2
-Panel admin, Next.js, login, tallas, warehouse externo.
+### M7 — Variantes e inventario (v3)
+SKU por talla/color; `stock_fisico` / `stock_reservado`; migración desde `productos.precio` y `productos.stock`. Reserva al checkout. Ver `docs/arquitectura-datos.md` §3.6 y `data.md` §11.  
+**DoD:** no se puede vender una talla sin stock; dos checkouts concurrentes no sobrevenden; el carrito envía `varianteId`.
+
+### M8 — Archivos (R2)
+Tabla `archivos`; bytes en R2 (local: disco `uploads/` con el mismo metadato). Nada en `BYTEA`.  
+**DoD:** foto de producto y un adjunto de pedido privado con URL firmada.
+
+### M9 — Usuarios y roles
+Staff (`admin`, `operador`); sin login de comprador salvo spec extra.  
+**DoD:** ABM de catálogo exige sesión; el anónimo no escribe productos.
+
+### M10 — Promociones
+Vigencia, % o monto, productos incluidos; cálculo en servidor.  
+**DoD:** el total del pedido coincide con la regla; el cliente no manda el descuento.
+
+### M11 — Despachos y devoluciones
+`despachos`, `devoluciones`, movimientos de stock de vuelta o merma.  
+**DoD:** un pedido pagado puede marcarse enviado; una devolución aceptada deja trazabilidad.
+
+### M12 — Panel admin
+UI mínima (puede ser HTML del mismo origen). No Next.js por defecto.  
+**DoD:** operador carga producto, variante, foto y ve pedidos.
+
+**Fuera de v3:** app nativa, marketplace, Redis/Meilisearch/pgvector (solo con evidencia, `docs/arquitectura-datos.md` §3.4).
 
 ---
 
@@ -213,3 +239,4 @@ Reglas comerciales en servidor:
 | Contador de visitas | M3, M6 |
 | Mercado Pago | M5 |
 | Arquitectura GH / Vercel / CF / MCP | M0 |
+| Variantes, admin, R2, despachos | M7–M12; `docs/arquitectura-datos.md` |

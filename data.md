@@ -1,7 +1,7 @@
 # Data — Tienda deportiva CCHC
 
-Versión: 1.1  
-Compañero de: `spec.md`, `CLAUDE.md`
+Versión: 1.2  
+Compañero de: `spec.md`, `CLAUDE.md`, `docs/arquitectura-datos.md`
 
 Fuente de verdad de **datos**: modelo OLTP, contratos JSON, semilla, eventos, KPIs y fórmulas.
 
@@ -275,3 +275,84 @@ Productos: los 20 del catálogo original en `js/app.js` (ids 1–20), con `slug`
 | M4 | producto_imagenes.url | GET /media | — |
 | M5 | pedidos, pedido_items | checkout, webhook, simular | begin_checkout, purchase |
 | M6 | eventos | POST eventos, GET metricas | catálogo completo |
+| M7 | variantes, reservas_stock, stock_movimientos | checkout usa varianteId | — |
+| M8 | archivos | upload + URL firmada | — |
+| M9 | usuarios, roles, usuarios_roles, auditoria | admin API | — |
+| M10 | promociones, promocion_productos | descuento en checkout | — |
+| M11 | despachos, devoluciones | estados de envío/retorno | — |
+
+---
+
+## 11. Modelo objetivo v3 (no está en `lib/schema.sql` todavía)
+
+Decisiones: `docs/arquitectura-datos.md`. Núcleo **PostgreSQL**. Fotos **fuera** de la BD. JSONB solo donde §3.5 lo permite.
+
+### 11.1 `variantes`
+
+SKU vendible. Talla y color son **columnas** (se filtran). `atributos_extra jsonb` para peso/material, no para stock.
+
+| Columna | Tipo | Notas |
+|---|---|---|
+| id | bigint PK | |
+| producto_id | bigint FK | |
+| sku | text UNIQUE | |
+| talla | text NULL | |
+| color | text NULL | |
+| precio, precio_antes | int | sustituye precio en `productos` |
+| stock_fisico | int CHECK (>= 0) | |
+| stock_reservado | int CHECK (>= 0) | `<= stock_fisico` |
+| activo | boolean | |
+| atributos_extra | jsonb | default `{}` |
+
+`UNIQUE (producto_id, talla, color)` cuando ambos no son null. Migración v2: una variante default por producto.
+
+### 11.2 `reservas_stock`
+
+| Columna | Tipo | Notas |
+|---|---|---|
+| id | bigint PK | |
+| variante_id | bigint FK | |
+| pedido_id | bigint FK | |
+| cantidad | int | |
+| estado | text | `activa` \| `consumida` \| `expirada` \| `liberada` |
+| expira_at | timestamptz | |
+| created_at | timestamptz | |
+
+### 11.3 `stock_movimientos`
+
+Libro mayor. No se borra. `tipo`: `ajuste`, `reserva`, `liberacion`, `venta`, `devolucion`, `merma`.
+
+### 11.4 `archivos`
+
+Metadatos; bytes en R2 o `uploads/`. `visibilidad`: `publico` \| `privado`. `entidad_tipo`: `producto` \| `variante` \| `pedido` \| `devolucion`.
+
+### 11.5 `pagos` (separado de `pedidos`)
+
+Intentos de cobro. `mp_payment_id` UNIQUE. `payload_pasarela jsonb` sin PAN/CVV.
+
+### 11.6 `despachos` / `devoluciones`
+
+Estados de envío y retorno; FK a `pedidos`. Devolución aceptada genera `stock_movimientos`.
+
+### 11.7 `usuarios` / `roles` / `usuarios_roles` / `auditoria`
+
+Solo staff en v3. `auditoria.diff jsonb` del cambio.
+
+### 11.8 `promociones` / `promocion_productos`
+
+Vigencia, tipo `porcentaje` \| `monto`, tope. El checkout aplica en servidor.
+
+### 11.9 Política JSONB (cerrada)
+
+Permitido: `eventos.payload`, `pagos.payload_pasarela`, `despachos.respuesta_courier`, `variantes.atributos_extra`, `auditoria.diff`.  
+Prohibido: stock, precio vigente, estado de pedido, correo, como único sitio del dato.
+
+### 11.10 Carrito v3
+
+Body de checkout: `{ "items": [{ "varianteId": 1, "cantidad": 2 }], ... }`. `productoId` solo queda en v2.
+
+---
+
+## 12. Índices v3 esenciales
+
+Además de los de v2: `variantes(producto_id)`, `variantes(sku)`, `reservas_stock(variante_id, estado)`, `stock_movimientos(variante_id, created_at)`, `archivos(entidad_tipo, entidad_id)`, `pagos(mp_payment_id)`, `pedidos(estado, created_at)`.
