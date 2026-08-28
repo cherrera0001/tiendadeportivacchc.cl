@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Cámara, tienda de artículos deportivos: running, fútbol, gimnasio, ciclismo y outdoor. Despacho a todo Chile.">
+  <meta name="theme-color" content="#0f172a">
+  <title>Cámara | Artículos deportivos</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>&#127942;</text></svg>">
+</head>
+<body>
+
+  <a class="salto-contenido" href="#catalogo">Saltar al catálogo</a>
+
+  <!-- ====================== BARRA SUPERIOR ====================== -->
+  <div class="barra-aviso">
+    <p>Despacho gratis sobre <strong>$59.990</strong> &middot; 12 cuotas sin interés &middot; Cambios en 30 días</p>
+  </div>
+
+  <!-- ====================== ENCABEZADO ====================== -->
+  <header class="encabezado" id="inicio">
+    <div class="contenedor encabezado__interior">
+
+      <a class="logo" href="#inicio" aria-label="Cámara, ir al inicio">
+        <span class="logo__marca" aria-hidden="true">C</span>
+        <span class="logo__texto">Cámara<small>artículos deportivos</small></span>
+      </a>
+
+      <nav class="navegacion" id="navegacion" aria-label="Navegación principal">
+        <a href="#catalogo">Catálogo</a>
+        <a href="#categorias">Categorías</a>
+        <a href="#beneficios">Beneficios</a>
+        <a href="#contacto">Contacto</a>
+      </nav>
+
+      <div class="encabezado__acciones">
+        <button class="boton-icono" id="btn-tema" type="button" aria-label="Cambiar tema claro u oscuro">
+          <span id="icono-tema" aria-hidden="true">◐</span>
+        </button>
+
+        <button class="boton-icono boton-icono--carrito" id="btn-carrito" type="button"
+                aria-label="Abrir carrito de compras" aria-expanded="false" aria-controls="panel-carrito">
+          <span aria-hidden="true">🛒</span>
+          <span class="contador" id="contador-carrito" aria-hidden="true">0</span>
+        </button>
+
+        <button class="boton-icono boton-icono--menu" id="btn-menu" type="button"
+                aria-label="Abrir menú" aria-expanded="false" aria-controls="navegacion">
+          <span aria-hidden="true">☰</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ====================== HERO ====================== -->
+    <section class="hero">
+      <div class="contenedor hero__interior">
+        <div class="hero__texto">
+          <p class="etiqueta">Temporada 2026</p>
+          <h1>Equípate para <span class="destacado">rendir</span>, no solo para entrenar</h1>
+          <p class="hero__bajada">
+            Zapatillas, indumentaria y equipamiento seleccionado por gente que entrena.
+            Stock real, garantía oficial y despacho a todo Chile en 48 horas hábiles.
+          </p>
+          <div class="hero__botones">
+            <a class="boton boton--primario" href="#catalogo">Ver catálogo</a>
+            <a class="boton boton--fantasma" href="#categorias">Explorar categorías</a>
+          </div>
+          <dl class="hero__cifras">
+            <div><dt>Productos en stock</dt><dd>1.240</dd></div>
+            <div><dt>Clientes 2025</dt><dd>18.500</dd></div>
+            <div><dt>Evaluación</dt><dd>4,8 / 5</dd></div>
+          </dl>
+        </div>
+
+        <div class="hero__arte" aria-hidden="true">
+          <div class="hero__circulo"></div>
+          <div class="hero__tarjeta hero__tarjeta--1">
+            <span class="hero__tarjeta-icono">👟</span>
+            <div><strong>Running</strong><small>Hasta 40 % dcto.</small></div>
+          </div>
+          <div class="hero__tarjeta hero__tarjeta--2">
+            <span class="hero__tarjeta-icono">🏋️</span>
+            <div><strong>Gimnasio</strong><small>Nueva colección</small></div>
+          </div>
+          <div class="hero__tarjeta hero__tarjeta--3">
+            <span class="hero__tarjeta-icono">⚽</span>
+            <div><strong>Fútbol</strong><small>Envío gratis</small></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================== CATEGORÍAS ====================== -->
+    <section class="seccion" id="categorias">
+      <div class="contenedor">
+        <header class="seccion__encabezado">
+          <h2>Compra por categoría</h2>
+          <p>Cinco disciplinas, un mismo criterio: producto que aguanta el uso real.</p>
+        </header>
+        <div class="grilla-categorias" id="grilla-categorias">
+          <!-- Generado por js/app.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================== CATÁLOGO ====================== -->
+    <section class="seccion seccion--alterna" id="catalogo">
+      <div class="contenedor">
+        <header class="seccion__encabezado">
+          <h2>Catálogo</h2>
+          <p>Filtra, ordena y arma tu carrito. Los precios incluyen IVA.</p>
+        </header>
+
+        <div class="controles">
+          <div class="campo campo--busqueda">
+            <label class="visualmente-oculto" for="busqueda">Buscar productos</label>
+            <span class="campo__icono" aria-hidden="true">🔍</span>
+            <input type="search" id="busqueda" placeholder="Buscar «zapatillas», «mancuernas»…" autocomplete="off">
+          </div>
+
+          <div class="campo">
+            <label class="visualmente-oculto" for="orden">Ordenar por</label>
+            <select id="orden">
+              <option value="destacados">Destacados</option>
+              <option value="precio-asc">Precio: menor a mayor</option>
+              <option value="precio-desc">Precio: mayor a menor</option>
+              <option value="evaluacion">Mejor evaluados</option>
+              <option value="nombre">Nombre (A-Z)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="filtros" id="filtros" role="group" aria-label="Filtrar por categoría">
+          <!-- Generado por js/app.js -->
+        </div>
+
+        <p class="resultado-conteo" id="resultado-conteo" role="status" aria-live="polite"></p>
+
+        <div class="grilla-productos" id="grilla-productos">
+          <!-- Generado por js/app.js -->
+        </div>
+
+        <p class="sin-resultados oculto" id="sin-resultados">
+          No encontramos productos con esos criterios. Prueba con otra palabra o limpia los filtros.
+        </p>
+      </div>
+    </section>
+
+    <!-- ====================== BENEFICIOS ====================== -->
+    <section class="seccion" id="beneficios">
+      <div class="contenedor">
+        <header class="seccion__encabezado">
+          <h2>¿Por qué comprar en Cámara?</h2>
+          <p>Lo básico bien hecho: stock real, plazos que se cumplen y postventa que responde.</p>
+        </header>
+        <ul class="grilla-beneficios">
+          <li class="beneficio">
+            <span class="beneficio__icono" aria-hidden="true">🚚</span>
+            <h3>Despacho en 48 horas</h3>
+            <p>Región Metropolitana y capitales regionales. Gratis sobre $59.990.</p>
+          </li>
+          <li class="beneficio">
+            <span class="beneficio__icono" aria-hidden="true">🔁</span>
+            <h3>Cambios en 30 días</h3>
+            <p>Si la talla no dio, la cambiamos sin costo y sin preguntas incómodas.</p>
+          </li>
+          <li class="beneficio">
+            <span class="beneficio__icono" aria-hidden="true">🛡️</span>
+            <h3>Garantía oficial</h3>
+            <p>Somos distribuidor autorizado. Cada producto llega con respaldo de marca.</p>
+          </li>
+          <li class="beneficio">
+            <span class="beneficio__icono" aria-hidden="true">💳</span>
+            <h3>12 cuotas sin interés</h3>
+            <p>Con tarjetas de crédito bancarias sobre $99.990 de compra.</p>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ====================== NEWSLETTER / CONTACTO ====================== -->
+    <section class="seccion seccion--cta" id="contacto">
+      <div class="contenedor cta">
+        <div class="cta__texto">
+          <h2>Ofertas antes que el resto</h2>
+          <p>Un correo por semana con liquidaciones, lanzamientos y códigos exclusivos. Sin spam.</p>
+        </div>
+        <form class="cta__formulario" id="formulario-newsletter" novalidate>
+          <label class="visualmente-oculto" for="correo">Correo electrónico</label>
+          <input type="email" id="correo" name="correo" placeholder="tu@correo.cl" required>
+          <button class="boton boton--primario" type="submit">Suscribirme</button>
+          <p class="mensaje-formulario" id="mensaje-newsletter" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ====================== PIE ====================== -->
+  <footer class="pie">
+    <div class="contenedor pie__interior">
+      <div class="pie__columna">
+        <a class="logo logo--pie" href="#inicio">
+          <span class="logo__marca" aria-hidden="true">C</span>
+          <span class="logo__texto">Cámara<small>artículos deportivos</small></span>
+        </a>
+        <p>Av. Alonso de Ribera 2850, Concepción, Chile.<br>Lunes a sábado, 10:00 a 20:00.</p>
+      </div>
+      <nav class="pie__columna" aria-label="Tienda">
+        <h3>Tienda</h3>
+        <a href="#catalogo">Catálogo completo</a>
+        <a href="#categorias">Categorías</a>
+        <a href="#beneficios">Despacho y cambios</a>
+      </nav>
+      <nav class="pie__columna" aria-label="Ayuda">
+        <h3>Ayuda</h3>
+        <a href="#contacto">Contacto</a>
+        <a href="#contacto">Preguntas frecuentes</a>
+        <a href="#contacto">Seguimiento de pedido</a>
+      </nav>
+      <div class="pie__columna">
+        <h3>Contacto</h3>
+        <p><a href="mailto:hola@camara.cl">hola@camara.cl</a><br><a href="tel:+56412345678">+56 41 234 5678</a></p>
+      </div>
+    </div>
+    <div class="contenedor pie__legal">
+      <p>&copy; <span id="anio"></span> Cámara SpA. Sitio de demostración: los precios y el stock son ficticios.</p>
+    </div>
+  </footer>
+
+  <!-- ====================== PANEL DE CARRITO ====================== -->
+  <div class="velo oculto" id="velo" hidden></div>
+
+  <aside class="carrito" id="panel-carrito" aria-label="Carrito de compras" aria-hidden="true" hidden>
+    <header class="carrito__encabezado">
+      <h2>Tu carrito</h2>
+      <button class="boton-icono" id="btn-cerrar-carrito" type="button" aria-label="Cerrar carrito">✕</button>
+    </header>
+
+    <div class="carrito__cuerpo" id="carrito-cuerpo">
+      <!-- Generado por js/app.js -->
+    </div>
+
+    <footer class="carrito__pie">
+      <dl class="carrito__totales">
+        <div><dt>Subtotal</dt><dd id="carrito-subtotal">$0</dd></div>
+        <div><dt>Despacho</dt><dd id="carrito-despacho">$0</dd></div>
+        <div class="carrito__total"><dt>Total</dt><dd id="carrito-total">$0</dd></div>
+      </dl>
+      <button class="boton boton--primario boton--ancho" id="btn-pagar" type="button" disabled>
+        Ir a pagar
+      </button>
+      <p class="carrito__nota" id="carrito-nota"></p>
+    </footer>
+  </aside>
+
+  <!-- ====================== AVISO FLOTANTE ====================== -->
+  <div class="aviso" id="aviso" role="status" aria-live="polite"></div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
