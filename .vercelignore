@@ -1,0 +1,15 @@
+# Nada interno del repo debe publicarse como estático (F-SAST-001)
+.git
+.env*
+CLAUDE.md
+README.md
+data.md
+spec.md
+docs
+prompts
+server
+data
+node_modules
+
+# El endpoint de simulación de pago no existe en producción (F-SAST-002)
+api/dev

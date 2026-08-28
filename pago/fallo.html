@@ -15,9 +15,6 @@
       <p><a class="boton boton--primario" href="/">Volver a la tienda</a></p>
     </div>
   </main>
-  <script>
-    const params = new URLSearchParams(location.search);
-    document.getElementById('codigo').textContent = params.get('codigo') || params.get('external_reference') || '—';
-  </script>
+  <script src="/js/pago-codigo.js"></script>
 </body>
 </html>
