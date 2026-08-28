@@ -1,0 +1,19 @@
+{
+  "name": "tienda-deportiva-cchc",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node server/index.js",
+    "start": "node server/index.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@electric-sql/pglite": "^0.3.11",
+    "dotenv": "^16.6.1",
+    "express": "^4.21.2",
+    "mercadopago": "^2.9.0",
+    "pg": "^8.23.0"
+  }
+}

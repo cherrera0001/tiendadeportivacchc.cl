@@ -1,14 +1,14 @@
 /* =========================================================
    Cámara — Artículos deportivos
-   Lógica de la tienda (sin dependencias externas)
+   Lógica de la tienda (consume /api)
 
    Secciones:
-     1. Datos (categorías y catálogo)
+     1. Datos (categorías; catálogo desde API)
      2. Utilidades
      3. Estado de la aplicación
      4. Render: categorías, filtros y productos
-     5. Carrito
-     6. Interfaz: tema, menú, newsletter
+     5. Carrito y checkout
+     6. Ficha, tema, menú, newsletter
      7. Arranque
    ========================================================= */
 'use strict';
@@ -23,38 +23,9 @@ const CATEGORIAS = [
   { id: 'outdoor',   nombre: 'Outdoor',   icono: '🏕️' }
 ];
 
-/**
- * Catálogo de demostración.
- * precioAntes = null cuando el producto no está en oferta.
- */
-const PRODUCTOS = [
-  { id: 1,  nombre: 'Zapatilla Velocity Pro 4',   marca: 'Aurex',      categoria: 'running',  precio: 119990, precioAntes: 159990, evaluacion: 4.8, resenas: 214, stock: 12, icono: '👟', insignia: 'oferta',  destacado: 5 },
-  { id: 2,  nombre: 'Zapatilla Trail Andes GTX',  marca: 'Kumbre',     categoria: 'running',  precio: 149990, precioAntes: null,   evaluacion: 4.7, resenas: 96,  stock: 7,  icono: '👟', insignia: 'nuevo',   destacado: 4 },
-  { id: 3,  nombre: 'Polera técnica DryFlow',     marca: 'Aurex',      categoria: 'running',  precio: 24990,  precioAntes: 32990,  evaluacion: 4.5, resenas: 341, stock: 48, icono: '👕', insignia: 'oferta',  destacado: 3 },
-  { id: 4,  nombre: 'Calza compresión Elite',     marca: 'Nébula',     categoria: 'running',  precio: 34990,  precioAntes: null,   evaluacion: 4.6, resenas: 127, stock: 22, icono: '🩳', insignia: null,      destacado: 2 },
+/** Catálogo vivo: lo llena GET /api/productos */
+let PRODUCTOS = [];
 
-  { id: 5,  nombre: 'Botín Estadio FG',           marca: 'Torrent',    categoria: 'futbol',   precio: 89990,  precioAntes: 119990, evaluacion: 4.6, resenas: 178, stock: 9,  icono: '👟', insignia: 'oferta',  destacado: 5 },
-  { id: 6,  nombre: 'Balón oficial Liga Pro',     marca: 'Torrent',    categoria: 'futbol',   precio: 39990,  precioAntes: null,   evaluacion: 4.9, resenas: 402, stock: 34, icono: '⚽', insignia: null,      destacado: 4 },
-  { id: 7,  nombre: 'Canilleras Carbon Shield',   marca: 'Torrent',    categoria: 'futbol',   precio: 18990,  precioAntes: 24990,  evaluacion: 4.3, resenas: 88,  stock: 3,  icono: '🛡️', insignia: 'oferta',  destacado: 1 },
-  { id: 8,  nombre: 'Guantes de arquero GripX',   marca: 'Nébula',     categoria: 'futbol',   precio: 44990,  precioAntes: null,   evaluacion: 4.4, resenas: 61,  stock: 15, icono: '🧤', insignia: null,      destacado: 2 },
-
-  { id: 9,  nombre: 'Set mancuernas 2 × 10 kg',   marca: 'IronBase',   categoria: 'gimnasio', precio: 79990,  precioAntes: 99990,  evaluacion: 4.7, resenas: 233, stock: 18, icono: '🏋️', insignia: 'oferta',  destacado: 5 },
-  { id: 10, nombre: 'Kettlebell competición 16 kg', marca: 'IronBase', categoria: 'gimnasio', precio: 54990,  precioAntes: null,   evaluacion: 4.8, resenas: 145, stock: 11, icono: '🔔', insignia: null,      destacado: 3 },
-  { id: 11, nombre: 'Colchoneta Pro 10 mm',       marca: 'Nébula',     categoria: 'gimnasio', precio: 22990,  precioAntes: 29990,  evaluacion: 4.5, resenas: 289, stock: 52, icono: '🧘', insignia: 'oferta',  destacado: 2 },
-  { id: 12, nombre: 'Banco regulable multiuso',   marca: 'IronBase',   categoria: 'gimnasio', precio: 189990, precioAntes: null,   evaluacion: 4.6, resenas: 74,  stock: 4,  icono: '🪑', insignia: 'nuevo',   destacado: 4 },
-
-  { id: 13, nombre: 'Bicicleta ruta Carbon R7',   marca: 'Kumbre',     categoria: 'ciclismo', precio: 1299990, precioAntes: 1499990, evaluacion: 4.9, resenas: 37, stock: 2, icono: '🚴', insignia: 'oferta',  destacado: 5 },
-  { id: 14, nombre: 'Casco aero Ventus',          marca: 'Kumbre',     categoria: 'ciclismo', precio: 89990,  precioAntes: null,   evaluacion: 4.7, resenas: 112, stock: 16, icono: '⛑️', insignia: null,      destacado: 3 },
-  { id: 15, nombre: 'Ciclocomputador GPS Track',  marca: 'Nébula',     categoria: 'ciclismo', precio: 149990, precioAntes: 179990, evaluacion: 4.4, resenas: 68,  stock: 8,  icono: '📟', insignia: 'oferta',  destacado: 2 },
-  { id: 16, nombre: 'Portabidón aluminio',        marca: 'Kumbre',     categoria: 'ciclismo', precio: 9990,   precioAntes: null,   evaluacion: 4.2, resenas: 156, stock: 74, icono: '🥤', insignia: null,      destacado: 1 },
-
-  { id: 17, nombre: 'Mochila trekking 45 L',      marca: 'Kumbre',     categoria: 'outdoor',  precio: 109990, precioAntes: 139990, evaluacion: 4.8, resenas: 91,  stock: 6,  icono: '🎒', insignia: 'oferta',  destacado: 4 },
-  { id: 18, nombre: 'Carpa 3 estaciones Patagonia', marca: 'Kumbre',   categoria: 'outdoor',  precio: 219990, precioAntes: null,   evaluacion: 4.7, resenas: 53,  stock: 5,  icono: '⛺', insignia: 'nuevo',   destacado: 5 },
-  { id: 19, nombre: 'Saco de dormir −5 °C',       marca: 'Nébula',     categoria: 'outdoor',  precio: 79990,  precioAntes: 94990,  evaluacion: 4.5, resenas: 104, stock: 13, icono: '🛏️', insignia: 'oferta',  destacado: 2 },
-  { id: 20, nombre: 'Bastones trekking carbono',  marca: 'Kumbre',     categoria: 'outdoor',  precio: 49990,  precioAntes: null,   evaluacion: 4.6, resenas: 77,  stock: 21, icono: '🥢', insignia: null,      destacado: 3 }
-];
-
-/** Reglas comerciales */
 const DESPACHO = { costo: 4990, umbralGratis: 59990 };
 const STOCK_BAJO = 5;
 
@@ -69,27 +40,21 @@ const formateadorPeso = new Intl.NumberFormat('es-CL', {
   maximumFractionDigits: 0
 });
 
-/** 119990 → «$119.990» */
 const precio = (valor) => formateadorPeso.format(valor);
 
-/** 4.8 → «★★★★★» (redondeo al medio punto más cercano, simplificado) */
 const estrellas = (valor) => '★'.repeat(Math.round(valor)) + '☆'.repeat(5 - Math.round(valor));
 
-/** Porcentaje de descuento entero */
 const descuento = (actual, antes) => Math.round((1 - actual / antes) * 100);
 
-/** Evita inyección de HTML al interpolar texto */
 const escapar = (texto) => String(texto).replace(/[&<>"']/g, (c) => (
   { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
 ));
 
-/** Normaliza para búsqueda: minúsculas y sin tildes */
 const normalizar = (texto) => String(texto)
   .toLowerCase()
   .normalize('NFD')
   .replace(/[\u0300-\u036f]/g, '');
 
-/** Retrasa la ejecución mientras se sigan produciendo eventos */
 function retardar(fn, ms = 220) {
   let temporizador;
   return (...args) => {
@@ -98,13 +63,42 @@ function retardar(fn, ms = 220) {
   };
 }
 
+function sessionId() {
+  try {
+    let id = sessionStorage.getItem('cchc_sid');
+    if (!id) {
+      id = crypto.randomUUID();
+      sessionStorage.setItem('cchc_sid', id);
+    }
+    return id;
+  } catch {
+    return 'anon';
+  }
+}
+
+function emitirEvento(nombre, extra = {}) {
+  fetch('/api/eventos', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ nombre, sessionId: sessionId(), ...extra })
+  }).catch(() => {});
+}
+
+function iconoCategoria(slug) {
+  return (CATEGORIAS.find((c) => c.id === slug) || {}).icono || '🏅';
+}
+
+function urlImagen(p) {
+  if (p.imagenes && p.imagenes[0] && p.imagenes[0].url) return p.imagenes[0].url;
+  return '';
+}
+
 /* ---------- 3) ESTADO ---------- */
 
 const estado = {
   categoria: 'todas',
   busqueda: '',
   orden: 'destacados',
-  /** Map<idProducto, cantidad> — en memoria, se reinicia al recargar */
   carrito: new Map()
 };
 
@@ -161,7 +155,6 @@ function sincronizarFiltros() {
   });
 }
 
-/** Aplica filtro de categoría, búsqueda y orden */
 function productosVisibles() {
   const consulta = normalizar(estado.busqueda.trim());
 
@@ -188,6 +181,10 @@ function productosVisibles() {
 
 function plantillaProducto(p) {
   const categoria = CATEGORIAS.find((c) => c.id === p.categoria);
+  const img = urlImagen(p);
+  const media = img
+    ? `<img src="${escapar(img)}" alt="" width="480" height="360" loading="lazy">`
+    : `<span aria-hidden="true">${iconoCategoria(p.categoria)}</span>`;
 
   const insignia = p.insignia === 'oferta'
     ? `<span class="producto__insignia producto__insignia--oferta">-${descuento(p.precio, p.precioAntes)} %</span>`
@@ -201,18 +198,22 @@ function plantillaProducto(p) {
        <span class="producto__descuento">-${descuento(p.precio, p.precioAntes)} %</span>`
     : `<span class="producto__precio">${precio(p.precio)}</span>`;
 
-  const stock = p.stock <= STOCK_BAJO
-    ? `<p class="producto__stock producto__stock--bajo">¡Últimas ${p.stock} unidades!</p>`
-    : `<p class="producto__stock">${p.stock} unidades disponibles</p>`;
+  const stock = p.stock <= 0
+    ? '<p class="producto__stock producto__stock--bajo">Sin stock</p>'
+    : p.stock <= STOCK_BAJO
+      ? `<p class="producto__stock producto__stock--bajo">¡Últimas ${p.stock} unidades!</p>`
+      : `<p class="producto__stock">${p.stock} unidades disponibles</p>`;
+
+  const deshabilitado = p.stock <= 0 ? ' disabled' : '';
 
   return `
     <article class="producto">
-      <figure class="producto__figura" role="img" aria-label="${escapar(p.nombre)}">
+      <button class="producto__figura" type="button" data-detalle="${p.id}" aria-label="Ver detalle de ${escapar(p.nombre)}">
         ${insignia}
-        <span aria-hidden="true">${p.icono}</span>
-      </figure>
+        ${media}
+      </button>
       <div class="producto__cuerpo">
-        <span class="producto__categoria">${escapar(categoria ? categoria.nombre : '')}</span>
+        <span class="producto__categoria">${escapar(categoria ? categoria.nombre : p.categoriaNombre || '')}</span>
         <h3 class="producto__nombre">${escapar(p.nombre)}</h3>
         <p class="producto__marca">${escapar(p.marca)}</p>
         <p class="producto__evaluacion">
@@ -221,8 +222,8 @@ function plantillaProducto(p) {
         </p>
         <div class="producto__precios">${precios}</div>
         ${stock}
-        <button class="boton boton--primario boton--ancho" type="button" data-agregar="${p.id}">
-          Agregar al carrito
+        <button class="boton boton--primario boton--ancho" type="button" data-agregar="${p.id}"${deshabilitado}>
+          ${p.stock <= 0 ? 'Sin stock' : 'Agregar al carrito'}
         </button>
       </div>
     </article>`;
@@ -250,6 +251,19 @@ function pintarProductos() {
   $$('[data-agregar]', contenedor).forEach((boton) => {
     boton.addEventListener('click', () => agregarAlCarrito(Number(boton.dataset.agregar)));
   });
+  $$('[data-detalle]', contenedor).forEach((boton) => {
+    boton.addEventListener('click', () => abrirFicha(Number(boton.dataset.detalle)));
+  });
+}
+
+function actualizarHero() {
+  const nProd = $('#cifra-productos');
+  const nEval = $('#cifra-evaluacion');
+  if (nProd) nProd.textContent = String(PRODUCTOS.length);
+  if (nEval && PRODUCTOS.length) {
+    const media = PRODUCTOS.reduce((acc, p) => acc + Number(p.evaluacion || 0), 0) / PRODUCTOS.length;
+    nEval.textContent = `${media.toFixed(1).replace('.', ',')} / 5`;
+  }
 }
 
 /* ---------- 5) CARRITO ---------- */
@@ -267,6 +281,7 @@ function agregarAlCarrito(id) {
   estado.carrito.set(id, actual + 1);
   pintarCarrito();
   mostrarAviso(`${producto.nombre} agregado al carrito`);
+  emitirEvento('add_to_cart', { productoId: id, valorClp: producto.precio });
 }
 
 function cambiarCantidad(id, delta) {
@@ -323,9 +338,13 @@ function pintarCarrito() {
     estado.carrito.forEach((cantidad, id) => {
       const p = PRODUCTOS.find((item) => item.id === id);
       if (!p) return;
+      const img = urlImagen(p);
+      const figura = img
+        ? `<img src="${escapar(img)}" alt="">`
+        : iconoCategoria(p.categoria);
       lineas.push(`
         <div class="linea-carrito">
-          <div class="linea-carrito__figura" aria-hidden="true">${p.icono}</div>
+          <div class="linea-carrito__figura" aria-hidden="true">${figura}</div>
           <div>
             <p class="linea-carrito__nombre">${escapar(p.nombre)}</p>
             <p class="linea-carrito__precio">${precio(p.precio)} c/u</p>
@@ -370,10 +389,10 @@ function abrirCarrito(abrir) {
   const boton = $('#btn-carrito');
 
   if (abrir) {
+    abrirFichaPanel(false);
     panel.hidden = false;
     velo.hidden = false;
     velo.classList.remove('oculto');
-    // Un frame de espera para que la transición se aplique
     requestAnimationFrame(() => panel.classList.add('abierto'));
     panel.setAttribute('aria-hidden', 'false');
     boton.setAttribute('aria-expanded', 'true');
@@ -392,15 +411,125 @@ function abrirCarrito(abrir) {
   }
 }
 
-function pagar() {
-  const { total, unidades } = totalesCarrito();
-  mostrarAviso(`Pedido simulado: ${unidades} artículo(s) por ${precio(total)}`);
-  estado.carrito.clear();
-  pintarCarrito();
-  setTimeout(() => abrirCarrito(false), 900);
+function validarCorreo(valor) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(valor.trim());
 }
 
-/* ---------- 6) INTERFAZ ---------- */
+async function pagar() {
+  const correo = $('#pago-correo').value;
+  if (!validarCorreo(correo)) {
+    mostrarAviso('Ingresa un correo válido para el pedido');
+    $('#pago-correo').focus();
+    return;
+  }
+
+  const items = [];
+  estado.carrito.forEach((cantidad, productoId) => {
+    items.push({ productoId, cantidad });
+  });
+
+  $('#btn-pagar').disabled = true;
+  try {
+    const resp = await fetch('/api/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        items,
+        correo,
+        nombre: $('#pago-nombre').value,
+        telefono: $('#pago-telefono').value,
+        direccion: $('#pago-direccion').value
+      })
+    });
+    const data = await resp.json();
+    if (!resp.ok) throw new Error(data.mensaje || 'No se pudo iniciar el pago');
+    estado.carrito.clear();
+    pintarCarrito();
+    window.location.href = data.initPoint;
+  } catch (err) {
+    mostrarAviso(err.message);
+    $('#btn-pagar').disabled = estado.carrito.size === 0;
+  }
+}
+
+/* ---------- 6) FICHA E INTERFAZ ---------- */
+
+function abrirFichaPanel(abrir) {
+  const panel = $('#ficha-producto');
+  const velo = $('#velo-ficha');
+  if (!panel) return;
+
+  if (abrir) {
+    abrirCarrito(false);
+    panel.hidden = false;
+    velo.hidden = false;
+    velo.classList.remove('oculto');
+    requestAnimationFrame(() => panel.classList.add('abierto'));
+    panel.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    $('#btn-cerrar-ficha').focus();
+  } else {
+    panel.classList.remove('abierto');
+    panel.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    setTimeout(() => {
+      panel.hidden = true;
+      velo.hidden = true;
+      velo.classList.add('oculto');
+    }, 260);
+  }
+}
+
+async function abrirFicha(id) {
+  let producto = PRODUCTOS.find((p) => p.id === id);
+  try {
+    const resp = await fetch(`/api/productos/${id}`);
+    const data = await resp.json();
+    if (resp.ok && data.producto) producto = data.producto;
+  } catch { /* usa el del listado */ }
+
+  if (!producto) return;
+
+  emitirEvento('product_view', { productoId: id });
+  $('#ficha-nombre').textContent = producto.nombre;
+
+  const img = urlImagen(producto);
+  const media = img
+    ? `<img class="ficha__imagen" src="${escapar(img)}" alt="${escapar(producto.nombre)}">`
+    : '';
+
+  const stock = producto.stock <= 0
+    ? '<p class="producto__stock producto__stock--bajo">Sin stock</p>'
+    : producto.stock <= STOCK_BAJO
+      ? `<p class="producto__stock producto__stock--bajo">¡Últimas ${producto.stock} unidades!</p>`
+      : `<p class="producto__stock">${producto.stock} unidades disponibles</p>`;
+
+  $('#ficha-cuerpo').innerHTML = `
+    ${media}
+    <p class="producto__marca">${escapar(producto.marca)} · ${escapar(producto.categoriaNombre || '')}</p>
+    <p>${escapar(producto.descripcion || '')}</p>
+    <div class="producto__precios">
+      <span class="producto__precio">${precio(producto.precio)}</span>
+      ${producto.precioAntes ? `<span class="producto__precio-antes">${precio(producto.precioAntes)}</span>` : ''}
+    </div>
+    ${stock}
+    <div class="ficha__acciones">
+      <button class="boton boton--primario boton--ancho" type="button" data-agregar-ficha="${producto.id}" ${producto.stock <= 0 ? 'disabled' : ''}>
+        Agregar al carrito
+      </button>
+    </div>`;
+
+  const btn = $('[data-agregar-ficha]');
+  if (btn) {
+    btn.addEventListener('click', () => {
+      agregarAlCarrito(producto.id);
+      abrirFichaPanel(false);
+      abrirCarrito(true);
+    });
+  }
+
+  abrirFichaPanel(true);
+}
 
 let temporizadorAviso;
 function mostrarAviso(texto) {
@@ -421,39 +550,32 @@ function alternarTema() {
   aplicarTema(actual === 'oscuro' ? 'claro' : 'oscuro');
 }
 
-function validarCorreo(valor) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(valor.trim());
-}
-
 function conectarEventos() {
-  // Búsqueda con retardo
   $('#busqueda').addEventListener('input', retardar((evento) => {
     estado.busqueda = evento.target.value;
     pintarProductos();
   }));
 
-  // Orden
   $('#orden').addEventListener('change', (evento) => {
     estado.orden = evento.target.value;
     pintarProductos();
   });
 
-  // Carrito
   $('#btn-carrito').addEventListener('click', () => abrirCarrito(true));
   $('#btn-cerrar-carrito').addEventListener('click', () => abrirCarrito(false));
   $('#velo').addEventListener('click', () => abrirCarrito(false));
   $('#btn-pagar').addEventListener('click', pagar);
+  $('#btn-cerrar-ficha').addEventListener('click', () => abrirFichaPanel(false));
+  $('#velo-ficha').addEventListener('click', () => abrirFichaPanel(false));
 
   document.addEventListener('keydown', (evento) => {
-    if (evento.key === 'Escape' && $('#panel-carrito').classList.contains('abierto')) {
-      abrirCarrito(false);
-    }
+    if (evento.key !== 'Escape') return;
+    if ($('#ficha-producto').classList.contains('abierto')) abrirFichaPanel(false);
+    else if ($('#panel-carrito').classList.contains('abierto')) abrirCarrito(false);
   });
 
-  // Tema
   $('#btn-tema').addEventListener('click', alternarTema);
 
-  // Menú móvil
   const btnMenu = $('#btn-menu');
   const navegacion = $('#navegacion');
   btnMenu.addEventListener('click', () => {
@@ -467,11 +589,11 @@ function conectarEventos() {
     });
   });
 
-  // Newsletter
-  $('#formulario-newsletter').addEventListener('submit', (evento) => {
+  $('#formulario-newsletter').addEventListener('submit', async (evento) => {
     evento.preventDefault();
     const campo = $('#correo');
     const mensaje = $('#mensaje-newsletter');
+    const consentimiento = $('#consentimiento');
 
     if (!validarCorreo(campo.value)) {
       mensaje.textContent = 'Ingresa un correo electrónico válido.';
@@ -479,26 +601,77 @@ function conectarEventos() {
       campo.focus();
       return;
     }
+    if (!consentimiento.checked) {
+      mensaje.textContent = 'Marca la casilla de consentimiento para continuar.';
+      mensaje.className = 'mensaje-formulario error';
+      consentimiento.focus();
+      return;
+    }
 
-    mensaje.textContent = '¡Listo! Revisa tu bandeja para confirmar la suscripción.';
-    mensaje.className = 'mensaje-formulario exito';
-    campo.value = '';
+    try {
+      const resp = await fetch('/api/suscriptores', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          correo: campo.value,
+          consentimiento: true
+        })
+      });
+      const data = await resp.json();
+      if (!resp.ok) throw new Error(data.mensaje || 'No se pudo guardar el correo');
+      mensaje.className = 'mensaje-formulario exito';
+      mensaje.textContent = data.estado === 'ya_suscrito'
+        ? 'Este correo ya estaba en nuestra lista.'
+        : 'Listo. Quedaste en la base de clientes.';
+      campo.value = '';
+      consentimiento.checked = false;
+    } catch (err) {
+      mensaje.className = 'mensaje-formulario error';
+      mensaje.textContent = err.message;
+    }
   });
+}
+
+async function cargarCatalogo() {
+  const resp = await fetch('/api/productos');
+  if (!resp.ok) throw new Error('No se pudo cargar el catálogo');
+  const data = await resp.json();
+  PRODUCTOS = data.productos || [];
+}
+
+async function registrarVisita() {
+  try {
+    const resp = await fetch('/api/visitas', { method: 'POST' });
+    const data = await resp.json();
+    const nodo = $('#cifra-visitas');
+    if (nodo && data.total != null) nodo.textContent = Number(data.total).toLocaleString('es-CL');
+  } catch { /* el hero queda en — */ }
 }
 
 /* ---------- 7) ARRANQUE ---------- */
 
-function iniciar() {
+async function iniciar() {
   const prefiereOscuro = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   aplicarTema(prefiereOscuro ? 'oscuro' : 'claro');
-
   $('#anio').textContent = new Date().getFullYear();
+  conectarEventos();
+  emitirEvento('page_view');
+  registrarVisita();
 
+  try {
+    await cargarCatalogo();
+  } catch {
+    $('#resultado-conteo').textContent = 'No pudimos cargar el catálogo. ¿Está corriendo npm run dev?';
+    $('#sin-resultados').classList.remove('oculto');
+    $('#sin-resultados').textContent = 'El servidor local no responde. En la carpeta del proyecto ejecuta npm install && npm run dev y abre http://localhost:3000';
+    return;
+  }
+
+  actualizarHero();
   pintarCategorias();
   pintarFiltros();
   pintarProductos();
   pintarCarrito();
-  conectarEventos();
 }
 
 document.addEventListener('DOMContentLoaded', iniciar);

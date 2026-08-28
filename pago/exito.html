@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pago aprobado | Cámara</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <main class="seccion">
+    <div class="contenedor pago-estado">
+      <p class="etiqueta">Checkout</p>
+      <h1>Pago recibido</h1>
+      <p>Gracias. Tu pedido <strong id="codigo">—</strong> quedó confirmado. Te escribiremos al correo del checkout con el detalle de despacho.</p>
+      <p><a class="boton boton--primario" href="/">Volver a la tienda</a></p>
+    </div>
+  </main>
+  <script>
+    const params = new URLSearchParams(location.search);
+    document.getElementById('codigo').textContent = params.get('codigo') || params.get('external_reference') || 'CCHC';
+  </script>
+</body>
+</html>

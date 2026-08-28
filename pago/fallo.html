@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pago no completado | Cámara</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <main class="seccion">
+    <div class="contenedor pago-estado">
+      <p class="etiqueta">Checkout</p>
+      <h1>No se completó el pago</h1>
+      <p>El pedido <strong id="codigo">—</strong> quedó sin cobro. El stock no se descontó. Puedes volver al carrito e intentarlo otra vez.</p>
+      <p><a class="boton boton--primario" href="/">Volver a la tienda</a></p>
+    </div>
+  </main>
+  <script>
+    const params = new URLSearchParams(location.search);
+    document.getElementById('codigo').textContent = params.get('codigo') || params.get('external_reference') || '—';
+  </script>
+</body>
+</html>

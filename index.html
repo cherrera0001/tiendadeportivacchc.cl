@@ -71,9 +71,9 @@
             <a class="boton boton--fantasma" href="#categorias">Explorar categorías</a>
           </div>
           <dl class="hero__cifras">
-            <div><dt>Productos en stock</dt><dd>1.240</dd></div>
-            <div><dt>Clientes 2025</dt><dd>18.500</dd></div>
-            <div><dt>Evaluación</dt><dd>4,8 / 5</dd></div>
+            <div><dt>Productos en catálogo</dt><dd id="cifra-productos">—</dd></div>
+            <div><dt>Visitas</dt><dd id="cifra-visitas">—</dd></div>
+            <div><dt>Evaluación</dt><dd id="cifra-evaluacion">—</dd></div>
           </dl>
         </div>
 
@@ -192,8 +192,12 @@
         </div>
         <form class="cta__formulario" id="formulario-newsletter" novalidate>
           <label class="visualmente-oculto" for="correo">Correo electrónico</label>
-          <input type="email" id="correo" name="correo" placeholder="tu@correo.cl" required>
+          <input type="email" id="correo" name="correo" placeholder="tu@correo.cl" autocomplete="email" required>
           <button class="boton boton--primario" type="submit">Suscribirme</button>
+          <label class="cta__consentimiento" for="consentimiento">
+            <input type="checkbox" id="consentimiento" name="consentimiento" required>
+            Acepto que Cámara use este correo para enviarme ofertas y novedades. Puedo darme de baja cuando quiera.
+          </label>
           <p class="mensaje-formulario" id="mensaje-newsletter" role="status" aria-live="polite"></p>
         </form>
       </div>
@@ -221,6 +225,7 @@
         <h3>Ayuda</h3>
         <a href="#contacto">Contacto</a>
         <a href="#contacto">Preguntas frecuentes</a>
+        <a href="/metricas.html">Métricas</a>
         <a href="#contacto">Seguimiento de pedido</a>
       </nav>
       <div class="pie__columna">
@@ -229,7 +234,7 @@
       </div>
     </div>
     <div class="contenedor pie__legal">
-      <p>&copy; <span id="anio"></span> Cámara SpA. Sitio de demostración: los precios y el stock son ficticios.</p>
+      <p>&copy; <span id="anio"></span> Cámara SpA. Stock y precios salen de la base de datos. Pagos con Mercado Pago o simulación en local.</p>
     </div>
   </footer>
 
@@ -252,11 +257,31 @@
         <div><dt>Despacho</dt><dd id="carrito-despacho">$0</dd></div>
         <div class="carrito__total"><dt>Total</dt><dd id="carrito-total">$0</dd></div>
       </dl>
+      <div class="carrito__datos">
+        <label for="pago-correo">Correo para el pedido</label>
+        <input type="email" id="pago-correo" autocomplete="email" placeholder="tu@correo.cl" required>
+        <label for="pago-nombre">Nombre</label>
+        <input type="text" id="pago-nombre" autocomplete="name" placeholder="Nombre y apellido">
+        <label for="pago-telefono">Teléfono</label>
+        <input type="tel" id="pago-telefono" autocomplete="tel" placeholder="+56 9 …">
+        <label for="pago-direccion">Dirección de despacho</label>
+        <input type="text" id="pago-direccion" autocomplete="street-address" placeholder="Calle, comuna, ciudad">
+      </div>
       <button class="boton boton--primario boton--ancho" id="btn-pagar" type="button" disabled>
         Ir a pagar
       </button>
       <p class="carrito__nota" id="carrito-nota"></p>
     </footer>
+  </aside>
+
+  <!-- ====================== FICHA DE PRODUCTO ====================== -->
+  <div class="velo oculto" id="velo-ficha" hidden></div>
+  <aside class="ficha" id="ficha-producto" hidden aria-hidden="true" aria-labelledby="ficha-nombre">
+    <header class="ficha__encabezado">
+      <h2 id="ficha-nombre">Producto</h2>
+      <button class="boton-icono" id="btn-cerrar-ficha" type="button" aria-label="Cerrar ficha">✕</button>
+    </header>
+    <div class="ficha__cuerpo" id="ficha-cuerpo"></div>
   </aside>
 
   <!-- ====================== AVISO FLOTANTE ====================== -->
