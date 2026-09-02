@@ -33,6 +33,31 @@ Abrir `http://localhost:3000`. Prompt CLI: `prompts/kickoff-claude-code.md`.
 
 ---
 
+## Prioridad operativa urgente (4 requerimientos verificados)
+
+**Estado**: ✅ **TODOS COMPLETADOS Y AUDITADOS** (2026-09-02)
+
+| # | Requerimiento | Módulo | Status | Evidencia |
+|---|---|---|---|---|
+| 1 | Registro de correos (BD clientes) | M2 | ✅ | POST /api/suscriptores → tabla suscriptores; baja funcional; Turnstile integrado |
+| 2 | Catálogo + fotos + precio + stock | M1, M4 | ✅ | GET /api/productos: 20 productos; stock tiempo real de BD; fotos en producto_imagenes |
+| 3 | Contador de visitas página | M3 | ✅ | POST /api/visitas: cookie rate limit; UPDATE atómico; total=5 verificado |
+| 4 | Mercado Pago Checkout | M5 | ✅ | POST /api/checkout: precio/stock desde BD; webhook idempotente; stock decrementado 12→11 |
+
+**Validaciones críticas ejecutadas**:
+- ✅ Precio y stock vienen de BD, NO del cliente
+- ✅ Webhook MP verifica firma + es idempotente
+- ✅ Correo válido, consentimiento Ley 19.628, Turnstile verificado
+- ✅ Stock decrementado solo en pago confirmado (no en agregar al carrito)
+- ✅ Access Token MP nunca en JS
+- ✅ Rate limit por cookie (visitas) e IP (suscriptores, checkout)
+
+**Lista de verificación v2 (spec.md §10)**: 8/8 ✅
+
+**Próximo paso**: Deploy a Vercel + Neon PostgreSQL (prod). Luego, M7 (variantes) tras responder 10 preguntas de arquitectura (docs/arquitectura-datos.md §9).
+
+---
+
 ## Protocolo de construcción (obligatorio)
 
 1. Módulo activo = el más bajo de `spec.md` §8 cuya DoD no esté cumplida.

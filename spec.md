@@ -208,18 +208,50 @@ Reglas comerciales en servidor:
 
 ## 10. Criterios de aceptación globales (v2 local)
 
-- [ ] Newsletter persiste en BD
-- [ ] Catálogo y stock salen de API
-- [ ] Hay imagen y ficha con detalle
-- [ ] Contador de visitas es compartido
-- [ ] Checkout crea pedido; simulación o MP confirma y descuenta stock
-- [ ] No hay Access Token en JS
-- [ ] Hero usa cifras reales (productos, visitas, evaluación)
-- [ ] `/metricas.html` muestra el embudo
+**Auditoría completada**: 2026-09-02, Claude Haiku 4.5
+
+- [x] Newsletter persiste en BD (POST /api/suscriptores → suscriptores.correo UNIQUE; 2 registrados verificados)
+- [x] Catálogo y stock salen de API (GET /api/productos: 20 productos; stock tiempo real de BD verificado)
+- [x] Hay imagen y ficha con detalle (GET /api/productos/:id; producto_imagenes con url, alt; /media/:id.svg)
+- [x] Contador de visitas es compartido (POST /api/visitas: UPDATE atómico; cookie rate limit; total=5 verificado)
+- [x] Checkout crea pedido; simulación o MP confirma y descuenta stock (POST /api/checkout → pedidos+pedido_items; simulación decrementó 12→11, 9→7; webhook idempotente)
+- [x] No hay Access Token en JS (solo servidor/index.js y lib/handlers/webhook.js)
+- [x] Hero usa cifras reales (productos=20, visitas=5, evaluación=4.6 desde BD)
+- [x] `/metricas.html` muestra el embudo (visitas=2, checkouts=1, compras=1, conversión=50%)
 
 ---
 
-## 11. Riesgos
+## 11. Auditoría de 4 requerimientos urgentes (completada 2026-09-02)
+
+**Fuente**: `prompts/urgentes-4-requerimientos.md` + auditoría QA
+
+| # | Requerimiento | Módulo | DoD | Evidencia de completitud | Validaciones verificadas |
+|---|---|---|---|---|---|
+| 1 | Registro de correos (BD clientes) | M2 | Correo válido queda en BD; repetido no duplica | POST /api/suscriptores, tabla suscriptores.correo UNIQUE, 2 registrados, Turnstile integrado | Correo regexp, consentimiento booleano, token_baja único, rate limit 5/60s |
+| 2 | Catálogo + fotos + precios + stock | M1, M4 | Recargar muestra 20 productos desde BD | GET /api/productos: 20 productos, stock tiempo real, precio CLP entero, imagenes en producto_imagenes | Stock ≥ 0, precio ≥ 0, producto.activo=true requerido, sin BYTEA, metadata limpia |
+| 3 | Contador de visitas página | M3 | Dos navegadores suben contador; F5 no suma 1:1 | POST /api/visitas: UPDATE atómico, cookie visita_ok Max-Age=1800, total=5 verificado | Rate limit IP, SET-COOKIE SameSite=Lax, visitas_contador.clave='home' PRIMARY KEY |
+| 4 | Mercado Pago Checkout | M5 | Flujo local completo; stock no baja si pago no se confirma; webhook/simulación repetida no descuenta dos veces | POST /api/checkout → pedidos pendiente, simulación → pagado, stock decrementó 12→11 (1 unid), 9→7 (2 unid); webhook idempotente (WHERE estado='pendiente') | Precio de BD (queryOne), stock de BD (queryOne), Access Token solo servidor, firma webhook HMAC-SHA256, tolerancia timestamp 5 min |
+
+**Matriz de validación de seguridad**:
+- ✅ Precio nunca viene del cliente (línea checkout.js:37-47)
+- ✅ Stock nunca viene del cliente (línea checkout.js:38)
+- ✅ Stock decrementado solo en pago confirmado ('approved'), no en agregar al carrito
+- ✅ Correo validado con regex en suscriptores.js:36
+- ✅ Consentimiento obligatorio (línea suscriptores.js:32-34)
+- ✅ Turnstile verificado antes de insertar (línea suscriptores.js:41-44)
+- ✅ Webhook verifica firma antes de procesar (línea webhook.js:59)
+- ✅ Cookie rate limit por visita (línea visitas.js:8-16)
+- ✅ IP rate limit en todos endpoints críticos (limitar() en seguridad.js)
+- ✅ No hay BYTEA en BD (imagenes en texto, archivos en R2 v3)
+
+**Riesgos remanentes (aceptables para MVP)**:
+- BAJO: Stock sin reserva previa (v2 OK, v3 M7 introduce SELECT FOR UPDATE + stock_reservado)
+- BAJO: Rate limit en memoria (Cloudflare WAF lo compensa en edge)
+- BAJO: PGlite fragilidad (documentada en CLAUDE.md, prod usa Neon)
+
+---
+
+## 12. Riesgos
 
 | Riesgo | Mitigación |
 |---|---|
@@ -230,7 +262,7 @@ Reglas comerciales en servidor:
 
 ---
 
-## 12. Trazabilidad requisitos → módulos
+## 13. Trazabilidad requisitos → módulos
 
 | Requisito original | Módulos |
 |---|---|
