@@ -21,6 +21,7 @@ import { handleCheckout } from '../lib/handlers/checkout.js';
 import { handleWebhook } from '../lib/handlers/webhook.js';
 import { handleSimularPago } from '../lib/handlers/simular-pago.js';
 import { handleMedia } from '../lib/handlers/media.js';
+import { handleChat } from '../lib/handlers/chat.js';
 import { aplicarCabecerasSeguridad } from '../lib/seguridad.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -48,6 +49,7 @@ app.get('/api/metricas', wrap(handleMetricas));
 app.post('/api/checkout', wrap(handleCheckout));
 app.post('/api/webhooks/mercadopago', wrap(handleWebhook));
 app.post('/api/dev/simular-pago', wrap(handleSimularPago));
+app.post('/api/chat', wrap(handleChat));
 app.get('/media/:id', wrap(handleMedia));
 
 // Solo assets del front: nunca servir la raíz del repo (.git, spec, package.json…)
