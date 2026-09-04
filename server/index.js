@@ -1,4 +1,13 @@
-import 'dotenv/config';
+import dotenv from 'dotenv';
+import fs from 'fs';
+
+// Cargar .env.local primero (desarrollo local con PGlite)
+// Si no existe, cargar .env (credenciales de producción)
+if (fs.existsSync('.env.local')) {
+  dotenv.config({ path: '.env.local' });
+} else {
+  dotenv.config();
+}
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
